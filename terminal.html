@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal - Kelly Mbeyah Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-terminal: #1e1e1e;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --color-primary: #4a9eff;
+            --color-cyan: #00bcd4;
+            --color-success: #2ecc71;
+            --color-warning: #f39c12;
+            --color-error: #e74c3c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--bg-terminal);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .terminal {
+            height: 100vh;
+            padding: 16px;
+            overflow-y: auto;
+            background-color: var(--bg-terminal);
+        }
+        
+        .terminal-line {
+            margin-bottom: 4px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .terminal-prompt {
+            color: var(--color-cyan);
+        }
+        
+        .terminal-input-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .terminal-input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            outline: none;
+            flex: 1;
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: var(--color-primary);
+            animation: blink 1s infinite;
+            margin-left: 2px;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .welcome-banner {
+            color: var(--color-primary);
+            margin-bottom: 16px;
+        }
+        
+        .command-output {
+            color: var(--text-secondary);
+            margin-left: 16px;
+        }
+        
+        .error {
+            color: var(--color-error);
+        }
+        
+        .success {
+            color: var(--color-success);
+        }
+        
+        .warning {
+            color: var(--color-warning);
+        }
+        
+        .info {
+            color: var(--color-primary);
+        }
+        
+        .ascii-art {
+            font-size: 0.7rem;
+            line-height: 1;
+            color: var(--color-cyan);
+        }
+        
+        .back-to-desktop {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background-color: rgba(74, 158, 255, 0.2);
+            color: var(--color-primary);
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            border: 1px solid var(--color-primary);
+            transition: all 0.2s;
+        }
+        
+        .back-to-desktop:hover {
+            background-color: var(--color-primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-to-desktop">← Back to Desktop</a>
+    
+    <div class="terminal" id="terminal">
+        <div class="terminal-line ascii-art">
+  __________.__        ___.                  __   
+  \______   \  | _____ \_ |__   ____   _____/  |_ 
+   |     ___/  | \__  \ | __ \_/ __ \ /    \   __\\n   |    |   |  |__/ __ \| \_\ \  ___/|   |  \  |  
+   |____|   |____(____  /___  /\___  >___|  /__|  
+                      \/    \/     \/     \/      
+        </div>
+        <div class="terminal-line welcome-banner">Linux Portfolio Terminal v1.0 - Kelly Mbeyah</div>
+        <div class="terminal-line">Type 'help' for available commands or 'desktop' to return to GUI</div>
+        <div class="terminal-line"></div>
+        <div class="terminal-line terminal-input-container">
+            <span class="terminal-prompt">kelly@portfolio:~$ </span>
+            <input type="text" class="terminal-input" id="terminal-input" autocomplete="off" spellcheck="false">
+            <span class="cursor"></span>
+        </div>
+    </div>
+    
+    <script>
+        // Terminal functionality for full-screen terminal
+        let commandHistory = [];
+        let historyIndex = -1;
+        let currentDirectory = '/home/kelly';
+        
+        const terminal = document.getElementById('terminal');
+        const terminalInput = document.getElementById('terminal-input');
+        
+        terminalInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                processFullTerminalCommand(this.value);
+                commandHistory.push(this.value);
+                historyIndex = commandHistory.length;
+                this.value = '';
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    this.value = commandHistory[historyIndex] || '';
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    this.value = commandHistory[historyIndex] || '';
+                } else {
+                    historyIndex = commandHistory.length;
+                    this.value = '';
+                }
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                handleFullTerminalAutoComplete(this.value);
+            }
+        });
+        
+        function processFullTerminalCommand(command) {
+            const cleanCommand = command.trim();
+            
+            // Add command to terminal
+            addTerminalLine(`<span class="terminal-prompt">kelly@portfolio:${currentDirectory}$ </span>${command}`);
+            
+            // Process command
+            const response = executeCommand(cleanCommand);
+            if (response) {
+                if (Array.isArray(response)) {
+                    response.forEach(line => addTerminalLine(line));
+                } else {
+                    addTerminalLine(response);
+                }
+            }
+            
+            // Add empty line
+            addTerminalLine('');
+            
+            // Scroll to bottom
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+        
+        function executeCommand(command) {
+            const cleanCommand = command.toLowerCase();
+            
+            switch(cleanCommand) {
+                case '':
+                    return null;
+                    
+                case 'help':
+                case '--help':
+                    return getFullTerminalHelp();
+                    
+                case 'whoami':
+                    return 'Kelly Mbeyah - Systems Thinker | Full-Stack Developer | Strategic Leader';
+                    
+                case 'pwd':
+                    return currentDirectory;
+                    
+                case 'ls':
+                    return 'about/  skills/  projects/  experience/  contact/  resume.pdf';
+                    
+                case 'ls -la':
+                    return [
+                        'total 42',
+                        'drwxr-xr-x  6 kelly kelly  4096 Dec 29 10:00 .',
+                        'drwxr-xr-x  3 root  root   4096 Dec 29 09:00 ..',
+                        'drwxr-xr-x  2 kelly kelly  4096 Dec 29 10:00 about',
+                        'drwxr-xr-x  2 kelly kelly  4096 Dec 29 10:00 skills',
+                        'drwxr-xr-x  2 kelly kelly  4096 Dec 29 10:00 projects',
+                        'drwxr-xr-x  2 kelly kelly  4096 Dec 29 10:00 experience',
+                        'drwxr-xr-x  2 kelly kelly  4096 Dec 29 10:00 contact',
+                        '-rw-r--r--  1 kelly kelly  1024 Dec 29 10:00 resume.pdf'
+                    ];
+                    
+                case 'ls projects':
+                case 'ls /var/projects':
+                    return 'twitter-sentiment/  sales-dashboard/  crm-optimization/  qa-framework/';
+                    
+                case 'ls skills':
+                case 'ls /bin/skills':
+                    return 'python  r-programming  html5  css3  django  git  aws  powerbi  zoho  postgresql  mysql';
+                    
+                case 'cat about.txt':
+                    return 'Professional with technical expertise and business acumen. Currently pursuing MBA in Strategic Management. Career spans technical roles, sales operations, quality assurance, and communications leadership.';
+                    
+                case 'cat skills.txt':
+                    return [
+                        'Technical Skills:',
+                        '  • Python (Expert)',
+                        '  • R Programming (Advanced)',
+                        '  • HTML5/CSS3 (Advanced)',
+                        '  • Django (Intermediate)',
+                        '  • Git/GitHub (Advanced)',
+                        '  • AWS (Intermediate)',
+                        '  • Power BI (Advanced)',
+                        '  • PostgreSQL/MySQL (Advanced)'
+                    ];
+                    
+                case 'cat experience.txt':
+                    return [
+                        'Professional Experience:',
+                        '',
+                        'Network International (July 2024 - Present)',
+                        '  Sales Operations Officer & Quality Assurance Officer',
+                        '  • Improved operational efficiency by 88%',
+                        '  • Streamlined CRM systems and processes',
+                        '',
+                        'Youth Agenda (May 2024 - April 2025)',
+                        '  Communications Associate',
+                        '  • Increased engagement by 30%',
+                        '  • Grew follower base by 25%',
+                        '',
+                        'Tradco Agency (May 2023 - June 2024)',
+                        '  Sales Executive',
+                        '',
+                        'Oigetit Fake News Filter (May 2022 - March 2023)',
+                        '  Communications Lead'
+                    ];
+                    
+                case 'cd about':
+                case 'open about':
+                    window.location.href = 'index.html#about';
+                    return 'Opening About module...';
+                    
+                case 'cd skills':
+                case 'open skills':
+                    window.location.href = 'index.html#skills';
+                    return 'Opening Skills module...';
+                    
+                case 'cd projects':
+                case 'open projects':
+                    window.location.href = 'index.html#projects';
+                    return 'Opening Projects module...';
+                    
+                case 'cd experience':
+                case 'open experience':
+                    window.location.href = 'index.html#experience';
+                    return 'Opening Experience module...';
+                    
+                case 'cd contact':
+                case 'open contact':
+                    window.location.href = 'index.html#contact';
+                    return 'Opening Contact module...';
+                    
+                case 'nano resume.pdf':
+                case 'open resume.pdf':
+                case 'cat resume.pdf':
+                    return 'Resume download initiated. Check your downloads folder.';
+                    
+                case 'sudo hire':
+                    window.location.href = 'index.html#contact';
+                    return 'Opening hiring contact form...';
+                    
+                case 'man experience':
+                    return [
+                        'EXPERIENCE(1)          User Commands          EXPERIENCE(1)',
+                        '',
+                        'NAME',
+                        '       experience - Display professional experience timeline',
+                        '',
+                        'SYNOPSIS',
+                        '       experience [options]',
+                        '',
+                        'DESCRIPTION',
+                        '       Shows detailed work history with achievements and metrics.',
+                        '       Includes roles at Network International, Youth Agenda, Tradco',
+                        '       Agency, and Oigetit Fake News Filter.',
+                        '',
+                        'SEE ALSO',
+                        '       skills(1), projects(1), about(1)'
+                    ];
+                    
+                case 'clear':
+                case 'cls':
+                    terminal.innerHTML = `
+                        <div class="terminal-line terminal-input-container">
+                            <span class="terminal-prompt">kelly@portfolio:${currentDirectory}$ </span>
+                            <input type="text" class="terminal-input" id="terminal-input" autocomplete="off" spellcheck="false">
+                            <span class="cursor"></span>
+                        </div>
+                    `;
+                    reinitializeTerminalInput();
+                    return null;
+                    
+                case 'history':
+                    return commandHistory.map((cmd, i) => `${i + 1}  ${cmd}`);
+                    
+                case 'date':
+                    return new Date().toString();
+                    
+                case 'uname -a':
+                    return 'Linux portfolio 5.15.0-generic #1 SMP Professional Portfolio x86_64 GNU/Linux';
+                    
+                case 'desktop':
+                case 'gui':
+                    window.location.href = 'index.html';
+                    return 'Returning to desktop interface...';
+                    
+                case 'exit':
+                case 'quit':
+                    window.location.href = 'index.html';
+                    return 'Goodbye!';
+                    
+                default:
+                    // Natural language processing
+                    if (cleanCommand.includes('project') || cleanCommand.includes('work')) {
+                        return 'Type "open projects" or "ls projects" to see my project portfolio.';
+                    } else if (cleanCommand.includes('skill') || cleanCommand.includes('ability')) {
+                        return 'Type "open skills" or "cat skills.txt" to see my technical skills.';
+                    } else if (cleanCommand.includes('contact') || cleanCommand.includes('hire')) {
+                        return 'Type "sudo hire" or "open contact" to access my contact information.';
+                    } else if (cleanCommand.includes('education') || cleanCommand.includes('school')) {
+                        return 'I hold a Bachelor of Science in Computer Science from University of Eldoret and am pursuing an MBA in Strategic Management at USIU.';
+                    } else {
+                        return `Command not found: ${command}. Type 'help' for available commands.`;
+                    }
+            }
+        }
+        
+        function getFullTerminalHelp() {
+            return [
+                'Linux Portfolio Terminal v1.0 - Help',
+                '',
+                'System Commands:',
+                '  help, --help     Show this help message',
+                '  whoami           Display user information',
+                '  pwd              Print working directory',
+                '  ls               List directory contents',
+                '  ls -la           List with detailed information',
+                '  cat [file]       Display file contents',
+                '  cd [dir]         Change directory',
+                '  open [module]    Open a module',
+                '  nano [file]      Edit/download file',
+                '  sudo hire        Contact for hiring',
+                '  man [command]    Show manual page',
+                '  clear            Clear terminal',
+                '  history          Show command history',
+                '  date             Show current date/time',
+                '  uname -a         System information',
+                '  exit, quit       Exit terminal',
+                '',
+                'Navigation:',
+                '  desktop          Return to GUI desktop',
+                '  gui              Return to GUI desktop',
+                '',
+                'Available modules:',
+                '  about, skills, projects, experience, contact',
+                '',
+                'Files:',
+                '  about.txt, skills.txt, experience.txt, resume.pdf'
+            ];
+        }
+        
+        function handleFullTerminalAutoComplete(partialCommand) {
+            const commands = [
+                'help', 'whoami', 'pwd', 'ls', 'cat', 'cd', 'open', 'nano', 'sudo', 'man', 
+                'clear', 'history', 'date', 'uname', 'exit', 'quit', 'desktop', 'gui'
+            ];
+            const matches = commands.filter(cmd => cmd.startsWith(partialCommand));
+            
+            if (matches.length === 1) {
+                document.getElementById('terminal-input').value = matches[0];
+            } else if (matches.length > 1) {
+                addTerminalLine(matches.join('  '));
+            }
+        }
+        
+        function addTerminalLine(content) {
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.innerHTML = content;
+            terminal.insertBefore(line, terminal.lastElementChild);
+        }
+        
+        function reinitializeTerminalInput() {
+            const newInput = document.getElementById('terminal-input');
+            newInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    processFullTerminalCommand(this.value);
+                    commandHistory.push(this.value);
+                    historyIndex = commandHistory.length;
+                    this.value = '';
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (historyIndex > 0) {
+                        historyIndex--;
+                        this.value = commandHistory[historyIndex] || '';
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (historyIndex < commandHistory.length - 1) {
+                        historyIndex++;
+                        this.value = commandHistory[historyIndex] || '';
+                    } else {
+                        historyIndex = commandHistory.length;
+                        this.value = '';
+                    }
+                }
+            });
+            newInput.focus();
+        }
+        
+        // Focus input on load
+        terminalInput.focus();
+        
+        // Add some initial commands for demo
+        setTimeout(() => {
+            addTerminalLine('<span class="info">Tip: Type "desktop" to return to the graphical interface</span>');
+        }, 2000);
+    </script>
+</body>
+</html>

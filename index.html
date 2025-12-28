@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelly Mbeyah - Systems Thinker | Portfolio</title>
+    <meta name="description" content="Kelly Mbeyah's portfolio - Full-Stack Developer, Strategic Leader, MBA Candidate. Technical expertise in Python, Django, data analysis, and business operations.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-surface: #2d2d2d;
+            --bg-terminal: #1e1e1e;
+            --color-primary: #4a9eff;
+            --color-secondary: #9b59b6;
+            --color-success: #2ecc71;
+            --color-warning: #f39c12;
+            --color-error: #e74c3c;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #666666;
+            --color-cyan: #00bcd4;
+            --color-lime: #8bc34a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .font-display {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Desktop Background */
+        #desktop-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        }
+        
+        /* Grid Overlay */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: radial-gradient(circle, var(--color-primary) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.05;
+            pointer-events: none;
+        }
+        
+        /* Taskbar */
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 48px;
+            background-color: rgba(45, 45, 45, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 1000;
+        }
+        
+        .start-menu {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .start-menu:hover {
+            background-color: rgba(74, 158, 255, 0.2);
+        }
+        
+        .taskbar-items {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            margin-left: 16px;
+        }
+        
+        .taskbar-item {
+            padding: 8px 12px;
+            margin-right: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .taskbar-item:hover {
+            background-color: rgba(74, 158, 255, 0.2);
+        }
+        
+        .taskbar-item.active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        .system-tray {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        /* Desktop Icons */
+        .desktop-icons {
+            position: fixed;
+            top: 32px;
+            left: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            z-index: 100;
+        }
+        
+        .desktop-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            width: 80px;
+        }
+        
+        .desktop-icon:hover {
+            background-color: rgba(74, 158, 255, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .desktop-icon .icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--color-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-size: 24px;
+        }
+        
+        .desktop-icon .label {
+            font-size: 0.75rem;
+            text-align: center;
+            color: var(--text-primary);
+        }
+        
+        /* Window Styles */
+        .window {
+            position: absolute;
+            background-color: var(--bg-surface);
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+            z-index: 200;
+            overflow: hidden;
+        }
+        
+        .window.active {
+            display: block;
+        }
+        
+        .window-header {
+            height: 36px;
+            background-color: rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            cursor: move;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .window-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        
+        .window-controls {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .window-control {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+        
+        .window-control.minimize {
+            background-color: var(--color-warning);
+        }
+        
+        .window-control.maximize {
+            background-color: var(--color-success);
+        }
+        
+        .window-control.close {
+            background-color: var(--color-error);
+        }
+        
+        .window-content {
+            padding: 24px;
+            height: calc(100% - 36px);
+            overflow-y: auto;
+        }
+        
+        /* Terminal Window */
+        .terminal-window {
+            width: 80%;
+            height: 70%;
+            top: 15%;
+            left: 10%;
+        }
+        
+        .terminal {
+            background-color: var(--bg-terminal);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            height: 100%;
+            padding: 16px;
+            overflow-y: auto;
+        }
+        
+        .terminal-output {
+            margin-bottom: 16px;
+        }
+        
+        .terminal-line {
+            margin-bottom: 4px;
+        }
+        
+        .terminal-prompt {
+            color: var(--color-cyan);
+        }
+        
+        .terminal-input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            outline: none;
+            width: calc(100% - 100px);
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: var(--color-primary);
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* About Window */
+        .about-window {
+            width: 600px;
+            height: 500px;
+            top: 20%;
+            left: 25%;
+        }
+        
+        .profile-section {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-image: url('./resources/profile-avatar.png');
+            background-size: cover;
+            background-position: center;
+            border: 3px solid var(--color-primary);
+        }
+        
+        .profile-info h2 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .profile-info .tagline {
+            color: var(--color-primary);
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+        
+        .profile-info .contact {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .about-content {
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        
+        .about-content h3 {
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            margin-top: 24px;
+        }
+        
+        .about-content h3:first-child {
+            margin-top: 0;
+        }
+        
+        .achievements {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 24px;
+        }
+        
+        .achievement {
+            background-color: rgba(74, 158, 255, 0.1);
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .achievement .number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            display: block;
+        }
+        
+        .achievement .label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Skills Window */
+        .skills-window {
+            width: 700px;
+            height: 600px;
+            top: 15%;
+            left: 20%;
+        }
+        
+        .skills-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .filter-btn:hover {
+            background-color: rgba(74, 158, 255, 0.2);
+            color: var(--text-primary);
+        }
+        
+        .filter-btn.active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        .skills-grid {
+            display: grid;
+            gap: 16px;
+        }
+        
+        .skill-item {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .skill-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .skill-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .skill-level {
+            font-size: 0.875rem;
+            color: var(--color-primary);
+        }
+        
+        .skill-bar {
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .skill-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-cyan));
+            border-radius: 3px;
+            transition: width 1s ease-out;
+            width: 0%;
+        }
+        
+        /* Projects Window */
+        .projects-window {
+            width: 800px;
+            height: 650px;
+            top: 10%;
+            left: 15%;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+        
+        .project-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .project-card:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .project-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .project-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .project-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .project-content {
+            padding: 16px;
+        }
+        
+        .project-description {
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        
+        .project-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .tech-tag {
+            background-color: rgba(74, 158, 255, 0.2);
+            color: var(--color-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        
+        /* Experience Window */
+        .experience-window {
+            width: 750px;
+            height: 600px;
+            top: 15%;
+            left: 18%;
+        }
+        
+        .experience-timeline {
+            position: relative;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--color-primary), var(--color-cyan));
+        }
+        
+        .experience-item {
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 32px;
+        }
+        
+        .experience-dot {
+            position: absolute;
+            left: 12px;
+            top: 8px;
+            width: 16px;
+            height: 16px;
+            background-color: var(--color-primary);
+            border-radius: 50%;
+            border: 3px solid var(--bg-surface);
+        }
+        
+        .experience-header {
+            margin-bottom: 8px;
+        }
+        
+        .experience-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .experience-company {
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+        
+        .experience-period {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        
+        .experience-description {
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+        
+        .experience-achievements {
+            margin-top: 12px;
+        }
+        
+        .achievement-item {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            padding-left: 16px;
+            position: relative;
+        }
+        
+        .achievement-item::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--color-primary);
+        }
+        
+        /* Contact Window */
+        .contact-window {
+            width: 500px;
+            height: 400px;
+            top: 25%;
+            left: 30%;
+        }
+        
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-input {
+            padding: 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-submit {
+            padding: 12px 24px;
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .form-submit:hover {
+            background-color: #3a8eef;
+            transform: translateY(-2px);
+        }
+        
+        .contact-info {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .contact-item a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+        
+        .contact-item a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Mode Toggle */
+        .mode-toggle {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .mode-btn {
+            padding: 8px 16px;
+            background-color: rgba(74, 158, 255, 0.2);
+            border: 1px solid var(--color-primary);
+            color: var(--color-primary);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .mode-btn:hover {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        .mode-btn.active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .desktop-icons {
+                display: none;
+            }
+            
+            .terminal-window {
+                width: 95%;
+                height: 80%;
+                top: 10%;
+                left: 2.5%;
+            }
+            
+            .about-window,
+            .skills-window,
+            .projects-window,
+            .experience-window,
+            .contact-window {
+                width: 95%;
+                height: 80%;
+                top: 10%;
+                left: 2.5%;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .achievements {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-30px);
+            animation: slideInLeft 0.6s ease-out forwards;
+        }
+        
+        @keyframes slideInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Desktop Background -->
+    <div id="desktop-bg"></div>
+    <div class="grid-overlay"></div>
+    <canvas id="particle-canvas"></canvas>
+    
+    <!-- Desktop Icons -->
+    <div class="desktop-icons">
+        <div class="desktop-icon" onclick="openWindow('about')">
+            <div class="icon">👤</div>
+            <div class="label">About</div>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('skills')">
+            <div class="icon">⚡</div>
+            <div class="label">Skills</div>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('projects')">
+            <div class="icon">💻</div>
+            <div class="label">Projects</div>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('experience')">
+            <div class="icon">📈</div>
+            <div class="label">Experience</div>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('contact')">
+            <div class="icon">📧</div>
+            <div class="label">Contact</div>
+        </div>
+    </div>
+    
+    <!-- Mode Toggle -->
+    <div class="mode-toggle">
+        <button class="mode-btn active" onclick="setMode('terminal')">Terminal</button>
+        <button class="mode-btn" onclick="setMode('gui')">GUI</button>
+    </div>
+    
+    <!-- Terminal Window -->
+    <div class="window terminal-window active" id="terminal-window">
+        <div class="window-header">
+            <div class="window-title">Terminal - kelly@portfolio</div>
+            <div class="window-controls">
+                <div class="window-control minimize" onclick="minimizeWindow('terminal')">−</div>
+                <div class="window-control maximize" onclick="maximizeWindow('terminal')">□</div>
+                <div class="window-control close" onclick="closeWindow('terminal')">×</div>
+            </div>
+        </div>
+        <div class="window-content terminal">
+            <div class="terminal-output" id="terminal-output">
+                <div class="terminal-line">Welcome to Kelly Mbeyah's Portfolio </div>
+                <div class="terminal-line">Where strategy, innovation, and execution create measurable impact.</div>
+                <div class="terminal-line">Type 'help' for available commands</div>
+                <div class="terminal-line"></div>
+            </div>
+            <div class="terminal-line">
+                <span class="terminal-prompt">kelly@portfolio:~$ </span>
+                <input type="text" class="terminal-input" id="terminal-input" autocomplete="off" spellcheck="false">
+                <span class="cursor"></span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- About Window -->
+    <div class="window about-window" id="about-window">
+        <div class="window-header">
+            <div class="window-title">About - /home/about</div>
+            <div class="window-controls">
+                <div class="window-control minimize" onclick="minimizeWindow('about')">−</div>
+                <div class="window-control maximize" onclick="maximizeWindow('about')">□</div>
+                <div class="window-control close" onclick="closeWindow('about')">×</div>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="profile-section">
+                <div class="profile-avatar"></div>
+                <div class="profile-info">
+                    <h2>Kelly Mbeyah</h2>
+                    <div class="tagline">Sales Operations | Quality Assurance | Data Analysis| FinTech Systems </div>
+                    <div class="contact">
+                        📧 kellymbeyah1@gmail.com<br>
+                        💼 <a href="https://linkedin.com/in/kelly-mbeyah" style="color: var(--color-primary);">LinkedIn: Kelly Mbeyah</a><br>
+                        🐙 <a href="https://github.com/Kelly-12-Mbeyah" style="color: var(--color-primary);">GitHub: Kelly-12-Mbeyah</a><br>
+                        📱 +254 708 810 061
+                    </div>
+                </div>
+            </div>
+            
+            <div class="about-content">
+                <h3>Professional Summary</h3>
+                <p>Strategic and data-driven professional bridging technology, operations, and communication to deliver measurable business impact. Experienced in sales operations optimization, quality assurance, and performance analytics, with a proven ability to streamline systems, enhance data integrity, and support informed decision-making. Combines a Computer Science foundation with hands-on expertise in CRM platforms, dashboards, QA audits, and digital communications. Trusted collaborator across cross-functional teams, known for translating complex data into clear insights and executing initiatives in fast-paced, regulated environments.</p>
+                
+                <h3>Core Values</h3>
+                <p>I am driven by systems thinking, continuous learning, and delivering measurable impact. By combining analytical rigor with creative problem-solving, I design solutions that align technology, business objectives, and user needs. My approach emphasizes efficiency, clarity, and tangible results, ensuring every project contributes meaningful value.</p>
+                
+                <h3>Education</h3>
+                <p><strong>Master of Business Administration (MBA) - International Finace </strong><br>
+                United States International University (USIU) | May 2025 - August 2027</p>
+                
+                <p><strong>Bachelor of Science in Computer Science</strong><br>
+                University of Eldoret | August 2018 - November 2022</p>
+            </div>
+            
+            <div class="achievements">
+                <div class="achievement">
+                    <span class="number">88%</span>
+                    <span class="label">Efficiency Improvement</span>
+                </div>
+                <div class="achievement">
+                    <span class="number">30%</span>
+                    <span class="label">Engagement Boost</span>
+                </div>
+                <div class="achievement">
+                    <span class="number">25%</span>
+                    <span class="label">Follower Growth</span>
+                </div>
+                <div class="achievement">
+                    <span class="number">40%</span>
+                    <span class="label">Post Reach Increase</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Skills Window -->
+    <div class="window skills-window" id="skills-window">
+        <div class="window-header">
+            <div class="window-title">Skills - /bin/skills</div>
+            <div class="window-controls">
+                <div class="window-control minimize" onclick="minimizeWindow('skills')">−</div>
+                <div class="window-control maximize" onclick="maximizeWindow('skills')">□</div>
+                <div class="window-control close" onclick="closeWindow('skills')">×</div>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="skills-filter">
+                <button class="filter-btn active" onclick="filterSkills('all')">All</button>
+                <button class="filter-btn" onclick="filterSkills('programming')">Programming</button>
+                <button class="filter-btn" onclick="filterSkills('frameworks')">Frameworks</button>
+                <button class="filter-btn" onclick="filterSkills('tools')">Tools</button>
+                <button class="filter-btn" onclick="filterSkills('databases')">Databases</button>
+            </div>
+            
+            <div class="skills-grid" id="skills-grid">
+                <div class="skill-item" data-category="programming">
+                    <div class="skill-header">
+                        <span class="skill-name">Python</span>
+                        <span class="skill-level">Expert</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="90"></div>
+                    </div>
+                </div>
+                
+                <div class="skill-item" data-category="programming">
+                    <div class="skill-header">
+                        <span class="skill-name">R Programming</span>
+                        <span class="skill-level">Advanced</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="80"></div>
+                    </div>
+                </div>
+                
+                <div class="skill-item" data-category="programming">
+                    <div class="skill-header">
+                        <span class="skill-name">HTML5</span>
+                        <span class="skill-level">Advanced</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="85"></div>
+                    </div>
+                </div>
+                
+                <div class="skill-item" data-category="programming">
+                    <div class="skill-header">
+                        <span class="skill-name">CSS3 / Bootstrap</span>
+                        <span class="skill-level">Advanced</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="85"></div>
+                    </div>
+                </div>
+                
+                <div class="skill-item" data-category="frameworks">
+                    <div class="skill-header">
+                        <span class="skill-name">Django</span>
+                        <span class="skill-level">Intermediate</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="75"></div>
+                    </div>
+                </div>
+                
+                <div class="skill-item" data-category="tools">
+                    <div class="skill-header">
+                        <span class="skill-name">Git / GitHub</span>
+                        <span class="skill-level">Advanced</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="88"></div>
+                    </div>
+                </div>
+                
+                <div class="skill-item" data-category="tools">
+                    <div class="skill-header">
+                        <span class="skill-name">AWS</span>
+                        <span class="skill-level">Intermediate</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="70"></div>
+                    </div>
+                </div>
+                
+                <div class="skill-item" data-category="tools">
+                    <div class="skill-header">
+                        <span class="skill-name">Power BI</span>
+                        <span class="skill-level">Advanced</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="82"></div>
+                    </div>
+                </div>
+                
+                <div class="skill-item" data-category="tools">
+                    <div class="skill-header">
+                        <span class="skill-name">Zoho CRM</span>
+                        <span class="skill-level">Expert</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="92"></div>
+                    </div>
+                </div>
+                
+                <div class="skill-item" data-category="tools">
+                    <div class="skill-header">
+                        <span class="skill-name">Jira</span>
+                        <span class="skill-level">Advanced</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="85"></div>
+                    </div>
+                </div>
+                
+                <div class="skill-item" data-category="tools">
+                    <div class="skill-header">
+                        <span class="skill-name">Postman API</span>
+                        <span class="skill-level">Advanced</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="87"></div>
+                    </div>
+                </div>
+                
+                <div class="skill-item" data-category="databases">
+                    <div class="skill-header">
+                        <span class="skill-name">PostgreSQL</span>
+                        <span class="skill-level">Advanced</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="83"></div>
+                    </div>
+                </div>
+                
+                <div class="skill-item" data-category="databases">
+                    <div class="skill-header">
+                        <span class="skill-name">MySQL</span>
+                        <span class="skill-level">Advanced</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="80"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Projects Window -->
+    <div class="window projects-window" id="projects-window">
+        <div class="window-header">
+            <div class="window-title">Projects - /var/projects</div>
+            <div class="window-controls">
+                <div class="window-control minimize" onclick="minimizeWindow('projects')">−</div>
+                <div class="window-control maximize" onclick="maximizeWindow('projects')">□</div>
+                <div class="window-control close" onclick="closeWindow('projects')">×</div>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="projects-grid">
+                <div class="project-card" onclick="openProject('sentiment')">
+                    <div class="project-header">
+                        <div class="project-title">Twitter Sentiment Analysis</div>
+                        <div class="project-subtitle">Machine Learning • NLP</div>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-description">
+                            Developed a comprehensive sentiment analysis system using Python and machine learning to classify tweets as Positive, Neutral, or Negative. Integrated Twitter API for real-time data fetching and applied NLP techniques for accurate sentiment classification.
+                        </div>
+                        <div class="project-tech">
+                            <span class="tech-tag">Python</span>
+                            <span class="tech-tag">Machine Learning</span>
+                            <span class="tech-tag">NLP</span>
+                            <span class="tech-tag">Twitter API</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="project-card" onclick="openProject('dashboard')">
+                    <div class="project-header">
+                        <div class="project-title">Sales Dashboard System</div>
+                        <div class="project-subtitle">Data Visualization • Analytics</div>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-description">
+                            Created and maintained dynamic sales dashboards and forecasting models at Network International, enhancing visibility into team performance and future revenue projections with 88% efficiency improvement.
+                        </div>
+                        <div class="project-tech">
+                            <span class="tech-tag">Power BI</span>
+                            <span class="tech-tag">Data Analysis</span>
+                            <span class="tech-tag">CRM</span>
+                            <span class="tech-tag">Forecasting</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="project-card" onclick="openProject('crm')">
+                    <div class="project-header">
+                        <div class="project-title">CRM Optimization</div>
+                        <div class="project-subtitle">Sales Operations • Process Improvement</div>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-description">
+                            Optimized sales processes and streamlined CRM systems, improving data accuracy and boosting operational efficiency through comprehensive system analysis and workflow improvements.
+                        </div>
+                        <div class="project-tech">
+                            <span class="tech-tag">Zoho CRM</span>
+                            <span class="tech-tag">Process Optimization</span>
+                            <span class="tech-tag">Data Analysis</span>
+                            <span class="tech-tag">Sales Operations</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="project-card" onclick="openProject('quality')">
+                    <div class="project-header">
+                        <div class="project-title">QA Automation Framework</div>
+                        <div class="project-subtitle">Quality Assurance • Testing</div>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-description">
+                            Developed comprehensive quality assurance processes and testing frameworks, conducting quality checks on products and platforms to ensure accuracy, security, and compliance with regulatory standards.
+                        </div>
+                        <div class="project-tech">
+                            <span class="tech-tag">Quality Assurance</span>
+                            <span class="tech-tag">Testing</span>
+                            <span class="tech-tag">Compliance</span>
+                            <span class="tech-tag">Process Design</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Experience Window -->
+    <div class="window experience-window" id="experience-window">
+        <div class="window-header">
+            <div class="window-title">Experience - /etc/experience</div>
+            <div class="window-controls">
+                <div class="window-control minimize" onclick="minimizeWindow('experience')">−</div>
+                <div class="window-control maximize" onclick="maximizeWindow('experience')">□</div>
+                <div class="window-control close" onclick="closeWindow('experience')">×</div>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="experience-timeline">
+                <div class="timeline-line"></div>
+                
+                <div class="experience-item">
+                    <div class="experience-dot"></div>
+                    <div class="experience-header">
+                        <div class="experience-title">Sales Operations Officer</div>
+                        <div class="experience-company">Network International</div>
+                    </div>
+                    <div class="experience-period">July 2024 - Present</div>
+                    <div class="experience-description">
+                        Optimized sales processes and streamlined CRM systems, improving data accuracy and boosting operational efficiency by 88%. Conducted comprehensive sales data analysis and reporting, identifying key trends and growth opportunities.
+                    </div>
+                    <div class="experience-achievements">
+                        <div class="achievement-item">Created dynamic sales dashboards and forecasting models</div>
+                        <div class="achievement-item">Collaborated with cross-functional teams (sales, marketing, product)</div>
+                        <div class="achievement-item">Designed training programs increasing team productivity</div>
+                    </div>
+                </div>
+                
+                <div class="experience-item">
+                    <div class="experience-dot"></div>
+                    <div class="experience-header">
+                        <div class="experience-title">Quality Assurance Officer</div>
+                        <div class="experience-company">Network International</div>
+                    </div>
+                    <div class="experience-period">May 2025 - Present</div>
+                    <div class="experience-description">
+                        Conduct quality checks on products and platforms to ensure accuracy, security, and compliance. Test system processes and transaction flows, identifying bugs and risks.
+                    </div>
+                    <div class="experience-achievements">
+                        <div class="achievement-item">Perform internal audits across departments</div>
+                        <div class="achievement-item">Maintain QA documentation and support regulatory audits</div>
+                        <div class="achievement-item">Analyze user feedback for system improvements</div>
+                    </div>
+                </div>
+                
+                <div class="experience-item">
+                    <div class="experience-dot"></div>
+                    <div class="experience-header">
+                        <div class="experience-title">Communications Associate</div>
+                        <div class="experience-company">Youth Agenda</div>
+                    </div>
+                    <div class="experience-period">May 2024 - April 2025</div>
+                    <div class="experience-description">
+                        Designed and produced compelling digital banners and visual content, improving online brand consistency and boosting engagement rates by 30% across platforms.
+                    </div>
+                    <div class="experience-achievements">
+                        <div class="achievement-item">Increased follower base by 25% within six months</div>
+                        <div class="achievement-item">Achieved 40% increase in post reach through strategic content</div>
+                        <div class="achievement-item">Managed social media presence across 4 platforms</div>
+                    </div>
+                </div>
+                
+                <div class="experience-item">
+                    <div class="experience-dot"></div>
+                    <div class="experience-header">
+                        <div class="experience-title">Sales Executive</div>
+                        <div class="experience-company">Tradco Agency</div>
+                    </div>
+                    <div class="experience-period">May 2023 - June 2024</div>
+                    <div class="experience-description">
+                        Delivered in-depth product knowledge and support for Philips and Bidco product lines, driving sales growth by meeting and exceeding monthly targets through direct selling to retailers, wholesalers, and end-users.
+                    </div>
+                    <div class="experience-achievements">
+                        <div class="achievement-item">Executed marketing campaigns and promotional activities</div>
+                        <div class="achievement-item">Built strong relationships with dealers and distributors</div>
+                        <div class="achievement-item">Identified new business opportunities in untapped markets</div>
+                    </div>
+                </div>
+                
+                <div class="experience-item">
+                    <div class="experience-dot"></div>
+                    <div class="experience-header">
+                        <div class="experience-title">Communications Lead</div>
+                        <div class="experience-company">Oigetit Fake News Filter</div>
+                    </div>
+                    <div class="experience-period">May 2022 - March 2023</div>
+                    <div class="experience-description">
+                        Led a national team of social media analysts, overseeing the execution of content strategies to support the organization's mission of combating misinformation.
+                    </div>
+                    <div class="experience-achievements">
+                        <div class="achievement-item">Developed comprehensive social media campaigns</div>
+                        <div class="achievement-item">Crafted organization's overall communications strategy</div>
+                        <div class="achievement-item">Collaborated with global teams for consistent messaging</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contact Window -->
+    <div class="window contact-window" id="contact-window">
+        <div class="window-header">
+            <div class="window-title">Contact - /root/contact</div>
+            <div class="window-controls">
+                <div class="window-control minimize" onclick="minimizeWindow('contact')">−</div>
+                <div class="window-control maximize" onclick="maximizeWindow('contact')">□</div>
+                <div class="window-control close" onclick="closeWindow('contact')">×</div>
+            </div>
+        </div>
+        <div class="window-content">
+            <form class="contact-form" onsubmit="submitContact(event)">
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Subject</label>
+                    <input type="text" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Message</label>
+                    <textarea class="form-input form-textarea" required></textarea>
+                </div>
+                <button type="submit" class="form-submit">Send Message</button>
+            </form>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    📧 <a href="mailto:kellymbeyah1@gmail.com">kellymbeyah1@gmail.com</a>
+                </div>
+                <div class="contact-item">
+                    💼 <a href="https://linkedin.com/in/kelly-mbeyah" target="_blank">LinkedIn: Kelly Mbeyah</a>
+                </div>
+                <div class="contact-item">
+                    🐙 <a href="https://github.com/Kelly-12-Mbeyah" target="_blank">GitHub: Kelly-12-Mbeyah</a>
+                </div>
+                <div class="contact-item">
+                    📱 +254 708 810 061
+                </div>
+                <div class="contact-item">
+                    📍 Nairobi, Kenya
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="start-menu" onclick="toggleStartMenu()">
+            <span style="font-size: 20px;">🐧</span>
+        </div>
+        <div class="taskbar-items">
+            <div class="taskbar-item active" onclick="openWindow('terminal')">Terminal</div>
+            <div class="taskbar-item" onclick="openWindow('about')">About</div>
+            <div class="taskbar-item" onclick="openWindow('skills')">Skills</div>
+            <div class="taskbar-item" onclick="openWindow('projects')">Projects</div>
+            <div class="taskbar-item" onclick="openWindow('experience')">Experience</div>
+        </div>
+        <div class="system-tray">
+            <span id="current-time"></span>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>
